@@ -42,10 +42,16 @@ jobs:
 
       - name: add docker package to build
         run: |
-           echo "${{ vars.ARTIFACTORY_URL }}/${{ vars.DEV_DOCKER_REPO_KEY }}/${{ vars.IMAGE_NAME }}:${{ github.run_number }}@${{ steps.docker-build.outputs.digest }}" > metadata.json
+           # echo "${{ vars.ARTIFACTORY_URL }}/${{ vars.DEV_DOCKER_REPO_KEY }}/${{ vars.IMAGE_NAME }}:${{ github.run_number }}@${{ steps.docker-build.outputs.digest }}" > metadata.json
+           # jf rt build-docker-create ${{ vars.DEV_DOCKER_REPO_KEY }} --image-file metadata.json --build-name ${{ vars.BUILD_NAME }} --build-number ${{ github.run_number }}
+           echo "----------------"
+           cat metadata.json
+           echo "----------------"
+           digest=$(cat metadata.json | jq '.["containerimage.digest"]')
+           echo "digest=$digest"
+           echo "${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}@$digest" > metadata.json
            jf rt build-docker-create ${{ vars.DEV_DOCKER_REPO_KEY }} --image-file metadata.json --build-name ${{ vars.BUILD_NAME }} --build-number ${{ github.run_number }}
-           jf rt build-docker-create ${{ vars.DEV_DOCKER_REPO_KEY }} --image-file metadata.json 
-
+           
       - name: Set Signing Evidence on Docker
         run: |
           # Create signing evidence JSON file
