@@ -69,18 +69,17 @@ jobs:
           # Log the result
           echo "🔎 Evidence attached: 'signature' 🔏"
 
-           
-      # - name: docker scan
-      #   run: |
-      #      jf docker pull ${{ vars.ARTIFACTORY_URL }}/${{ vars.DEV_DOCKER_REPO_KEY }}/green-pizza:${{ github.run_number }}
-      #      jf docker scan ${{ vars.ARTIFACTORY_URL }}/${{ vars.DEV_DOCKER_REPO_KEY }}/green-pizza:${{ github.run_number }} --vuln  --fail=false
-           
       - name: Publish build info
-        if: ${{ true }}
+        if: ${{ true }} 
         run: |
           jf rt build-collect-env  ${{ vars.BUILD_NAME }}  ${{ github.run_number }}
           jf rt build-add-git ${{ vars.BUILD_NAME }}  ${{ github.run_number }}
           jf rt build-publish ${{ vars.BUILD_NAME }}  ${{ github.run_number }}
+          
+      - name: build scan
+        run: |
+           jf bs ${{ vars.BUILD_NAME }}  ${{ github.run_number }} --vuln
+           
       - name: Sign Build Evidence
         run: |
           # Define actor and date for the signing evidence
