@@ -14,7 +14,7 @@ jobs:
       - name: Install jfrog cli
         uses: jfrog/setup-jfrog-cli@v4
         env:
-          JF_URL: ${{ vars.ARTIFACTORY_URL }}
+          JF_URL: https://${{ vars.ARTIFACTORY_URL }}
           JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
       - uses: actions/checkout@v4
@@ -40,14 +40,10 @@ jobs:
          tags: ${{ vars.ARTIFACTORY_URL }}/${{ vars.DEV_DOCKER_REPO_KEY }}/${{ vars.IMAGE_NAME }}:${{ github.run_number }}
          provenance: false
 
-      # - name: add docker package to build
-      #   run: |
-      #      set -x
-      #      echo "${{ vars.ARTIFACTORY_URL }}/${{ vars.DEV_DOCKER_REPO_KEY }}/${{ vars.IMAGE_NAME }}:${{ github.run_number }}@${{ steps.docker-build.outputs.digest }}" > metadata.json
-      #      echo "--------------------------"
-      #      cat metadata.json
-      #      echo "--------------------------"
-      #      jf rt build-docker-create ${{ vars.DEV_DOCKER_REPO_KEY }} --image-file metadata.json --build-name ${{ vars.BUILD_NAME }} --build-number ${{ github.run_number }}
+      - name: add docker package to build
+        run: |
+           echo "${{ vars.ARTIFACTORY_URL }}/${{ vars.DEV_DOCKER_REPO_KEY }}/${{ vars.IMAGE_NAME }}:${{ github.run_number }}@${{ steps.docker-build.outputs.digest }}" > metadata.json
+           jf rt build-docker-create ${{ vars.DEV_DOCKER_REPO_KEY }} --image-file metadata.json --build-name ${{ vars.BUILD_NAME }} --build-number ${{ github.run_number }}
            
            
       - name: Set Signing Evidence on Docker
@@ -66,7 +62,7 @@ jobs:
           --package-version "${{ github.run_number }}" \
           --package-repo-name ${{ vars.DEV_DOCKER_REPO_KEY }} \
           --key "${{ secrets.PRIVATE_KEY }}" \
-          --key-alias rbv2psemea \
+          --key-alias evidence-sample \
           --predicate ./sign.json \
           --predicate-type https://jfrog.com/evidence/signature/v1 
 
@@ -82,9 +78,9 @@ jobs:
       - name: Publish build info
         if: ${{ true }}
         run: |
-          jf rt build-collect-env
-          jf rt build-add-git
-          jf rt build-publish
+          jf rt build-collect-env  ${{ vars.BUILD_NAME }}  ${{ github.run_number }}
+          jf rt build-add-git ${{ vars.BUILD_NAME }}  ${{ github.run_number }}
+          jf rt build-publish ${{ vars.BUILD_NAME }}  ${{ github.run_number }}
       - name: Sign Build Evidence
         run: |
           # Define actor and date for the signing evidence
@@ -104,7 +100,7 @@ jobs:
             --predicate ./sign.json \
             --predicate-type https://jfrog.com/evidence/build-signature/v1 \
             --key "${{ secrets.PRIVATE_KEY }}" \
-            --key-alias rbv2psemea
+            --key-alias evidence-sample
 
           # Add a summary entry to GitHub Actions
           echo "🔎 Evidence attached: 'build-signature' 🔏" >> $GITHUB_STEP_SUMMARY
@@ -124,7 +120,7 @@ jobs:
           jf release-bundle-create \
           "${{ vars.BUNDLE_NAME }}" \
           "${{ github.run_number }}" \
-          --rbv2psemea RSA-SIGNING \
+          --signing-key evidence-sample \
           --spec bundle-spec.json \
           --sync=true
 
@@ -136,14 +132,14 @@ jobs:
           # Log the creation of the release bundle
           echo "📦 Release bundle [${{ vars.BUNDLE_NAME }}](${NAME_LINK}):[${{ github.run_number }}](${VER_LINK}) created" >> $GITHUB_STEP_SUMMARY
           
-      - name: Promote to DEV
+      - name: Promote to STAGING
         run: |
-          jf release-bundle-promote ${{ vars.BUNDLE_NAME }} ${{ github.run_number }} DEV --rbv2psemea RSA-SIGNING --sync=true
+          jf release-bundle-promote ${{ vars.BUNDLE_NAME }} ${{ github.run_number }} STAGING --signing-key evidence-sample --sync=true
           echo "🚀 Succesfully promote to \`DEV\` environemnt" >> $GITHUB_STEP_SUMMARY
 
-      - name: Promote to QA
+      - name: Promote to PROD
         run: |
-          jf release-bundle-promote ${{ vars.BUNDLE_NAME }} ${{ github.run_number }} QA --rbv2psemea RSA-SIGNING --sync=true
+          jf release-bundle-promote ${{ vars.BUNDLE_NAME }} ${{ github.run_number }} PROD --signing-key evidence-sample --sync=true
           echo "🚀 Succesfully promote to \`QA\` environemnt" >> $GITHUB_STEP_SUMMARY
 
       - name: Attach Test Evidence to Release Bundle
@@ -173,7 +169,7 @@ jobs:
             --predicate ./test_evidence.json \
             --predicate-type https://jfrog.com/evidence/testing-results/v1 \
             --key "${{ secrets.PRIVATE_KEY }}" \
-            --key-alias rbv2psemea
+            --key-alias evidence-sample
 
             # Log the evidence attachment
             echo "🔎 Evidence attached: integration-test 🧪" >> $GITHUB_STEP_SUMMARY
