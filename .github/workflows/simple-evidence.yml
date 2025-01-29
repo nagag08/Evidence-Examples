@@ -17,7 +17,8 @@ jobs:
         env:
           JF_URL: https://${{ vars.ARTIFACTORY_URL }}
         with:
-         oidc-provider-name: ps-jfrog-labs
+          JF_URL: ${{ vars.ARTIFACTORY_URL }}
+          JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
       - uses: actions/checkout@v4
 
