@@ -124,7 +124,7 @@ jobs:
           --sync=true
 
           # Generate links to the release bundle
-          ARTIFACTORY_UI="${{ vars.ARTIFACTORY_URL }}/ui/artifactory/lifecycle"
+          ARTIFACTORY_UI="https://${{ vars.ARTIFACTORY_URL }}/ui/artifactory/lifecycle"
           NAME_LINK="${ARTIFACTORY_UI}/?bundleName=${{ vars.BUNDLE_NAME }}&bundleToFlash=${{ vars.BUNDLE_NAME }}&repositoryKey=release-bundles-v2&activeKanbanTab=promotion"
           VER_LINK="${ARTIFACTORY_UI}/?bundleName=${{ vars.BUNDLE_NAME }}&bundleToFlash=${{ vars.BUNDLE_NAME }}&releaseBundleVersion=${{ github.run_number }}&repositoryKey=release-bundles-v2&activeVersionTab=Version%20Timeline&activeKanbanTab=promotion"
 
@@ -155,7 +155,7 @@ jobs:
             }" > test_evidence.json
 
             # Generate link to the release bundle
-            ARTIFACTORY_UI="${{ vars.ARTIFACTORY_URL }}/ui/artifactory/lifecycle"
+            ARTIFACTORY_UI="https://${{ vars.ARTIFACTORY_URL }}/ui/artifactory/lifecycle"
             JF_LINK="${ARTIFACTORY_UI}/?bundleName=${{ vars.BUNDLE_NAME }}&bundleToFlash=${{ vars.BUNDLE_NAME }}&releaseBundleVersion=${{ github.run_number }}&repositoryKey=release-bundles-v2&activeVersionTab=Version%20Timeline&activeKanbanTab=promotion"
 
             # Log the test result in GitHub summary
