@@ -48,10 +48,10 @@ jobs:
       - name: Promote to Production
         run: |
           if [ "${{ env.RESULT }}" == "true" ]; then
-            jf evd create --key "${{ secrets.PRIVATE_KEY }}" --key-alias SIGNING-KEY \
+            jf evd create --key "${{ secrets.PRIVATE_KEY }}" --key-alias rbv2psemea \
               --release-bundle ${{ inputs.bundle-name }} --release-bundle-version ${{ inputs.bundle-version }} \
               --predicate ./policy.json --predicate-type https://jfrog.com/evidence/approval/v1
-            jf release-bundle-promote ${{ inputs.bundle-name }} ${{ inputs.bundle-version }} PROD --signing-key RSA-SIGNING  --sync=true
+            jf release-bundle-promote ${{ inputs.bundle-name }} ${{ inputs.bundle-version }} PROD --signing-key rbv2psemea  --sync=true
             echo "🚀 Succesfully promote to \`PROD\` environemnt" >> $GITHUB_STEP_SUMMARY
           else
             echo "Fail promotion policy check" >> $GITHUB_STEP_SUMMARY
