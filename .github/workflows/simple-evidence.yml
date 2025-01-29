@@ -92,7 +92,7 @@ jobs:
           \"actor\": \"${ACTOR}\",
           \"date\": \"${DATE}\"
           }" > sign.json
-          sleep 10
+          sleep 100
           # Sign the build evidence using JFrog CLI
           jf evd create \
             --build-name "${{ vars.BUILD_NAME }} " \
