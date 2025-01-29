@@ -63,7 +63,7 @@ jobs:
           --package-version "${{ github.run_number }}" \
           --package-repo-name ${{ vars.DEV_DOCKER_REPO_KEY }} \
           --key "${{ secrets.PRIVATE_KEY }}" \
-          --key-alias SIGNING-KEY \
+          --key-alias rbv2psemea \
           --predicate ./sign.json \
           --predicate-type https://jfrog.com/evidence/signature/v1 
 
@@ -101,7 +101,7 @@ jobs:
             --predicate ./sign.json \
             --predicate-type https://jfrog.com/evidence/build-signature/v1 \
             --key "${{ secrets.PRIVATE_KEY }}" \
-            --key-alias SIGNING-KEY
+            --key-alias rbv2psemea
 
           # Add a summary entry to GitHub Actions
           echo "🔎 Evidence attached: 'build-signature' 🔏" >> $GITHUB_STEP_SUMMARY
@@ -121,7 +121,7 @@ jobs:
           jf release-bundle-create \
           "${{ vars.BUNDLE_NAME }}" \
           "${{ github.run_number }}" \
-          --signing-key RSA-SIGNING \
+          --rbv2psemea RSA-SIGNING \
           --spec bundle-spec.json \
           --sync=true
 
@@ -135,12 +135,12 @@ jobs:
           
       - name: Promote to DEV
         run: |
-          jf release-bundle-promote ${{ vars.BUNDLE_NAME }} ${{ github.run_number }} DEV --signing-key RSA-SIGNING --sync=true
+          jf release-bundle-promote ${{ vars.BUNDLE_NAME }} ${{ github.run_number }} DEV --rbv2psemea RSA-SIGNING --sync=true
           echo "🚀 Succesfully promote to \`DEV\` environemnt" >> $GITHUB_STEP_SUMMARY
 
       - name: Promote to QA
         run: |
-          jf release-bundle-promote ${{ vars.BUNDLE_NAME }} ${{ github.run_number }} QA --signing-key RSA-SIGNING --sync=true
+          jf release-bundle-promote ${{ vars.BUNDLE_NAME }} ${{ github.run_number }} QA --rbv2psemea RSA-SIGNING --sync=true
           echo "🚀 Succesfully promote to \`QA\` environemnt" >> $GITHUB_STEP_SUMMARY
 
       - name: Attach Test Evidence to Release Bundle
@@ -170,7 +170,7 @@ jobs:
             --predicate ./test_evidence.json \
             --predicate-type https://jfrog.com/evidence/testing-results/v1 \
             --key "${{ secrets.PRIVATE_KEY }}" \
-            --key-alias SIGNING-KEY
+            --key-alias rbv2psemea
 
             # Log the evidence attachment
             echo "🔎 Evidence attached: integration-test 🧪" >> $GITHUB_STEP_SUMMARY
