@@ -109,7 +109,8 @@ jobs:
           echo "{
             \"files\": [
             {
-           \"build\": \"${{ vars.BUILD_NAME }}/${{ github.run_number }}\"
+           \"build\": \"${{ vars.BUILD_NAME }}/${{ github.run_number }}\",
+           \"includeDeps\": \"true\"
             }
           ]
           }" > bundle-spec.json
