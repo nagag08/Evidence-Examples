@@ -12,11 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install jfrog cli
-        id:   setup-cli
         uses: jfrog/setup-jfrog-cli@v4
         env:
-          JF_URL: https://${{ vars.ARTIFACTORY_URL }}
-        with:
           JF_URL: ${{ vars.ARTIFACTORY_URL }}
           JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
